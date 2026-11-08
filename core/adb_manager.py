@@ -1,5 +1,5 @@
 """
-DebloatKit v1.0 — ADB Manager
+DebloatKit v2.0 — ADB Manager
 Handles device detection, connection polling, and ADB command execution.
 Author: Yashwanth Ram Somireddy | TeamExyKings | MIT License
 """
@@ -345,20 +345,6 @@ class ADBManager:
             self.log(f"✓ Path B uninstalled: {pkg}", "success")
             return True, "uninstalled"
         self.log(f"✗ Path B failed for {pkg}: {out}", "error")
-        return False, out
-
-    def reinstall_package(self, pkg: str) -> tuple[bool, str]:
-        self.log(f"Restoring {pkg}...", "info")
-        ok, out = self.run_shell(f"cmd package install-existing --user 0 {pkg}", timeout=20)
-        if ok and ("installed" in out.lower() or not out):
-            self.log(f"✓ Restored: {pkg}", "success")
-            return True, "enabled"
-        # Fallback
-        ok2, out2 = self.run_shell(f"pm install-existing {pkg}", timeout=20)
-        if ok2:
-            self.log(f"✓ Restored (fallback): {pkg}", "success")
-            return True, "enabled"
-        self.log(f"✗ Failed to restore {pkg}: {out}", "error")
         return False, out
 
     def soundalive_fix(self) -> bool:

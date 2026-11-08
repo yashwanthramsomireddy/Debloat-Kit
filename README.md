@@ -4,7 +4,7 @@
 ### Works with Samsung Galaxy Devices
 **Safely disable & uninstall bloatware via ADB — no root required**
 
-![Version](https://img.shields.io/badge/version-1.0-00e676?style=flat-square)
+![Version](https://img.shields.io/badge/version-2.0-00e676?style=flat-square)
 ![Platform](https://img.shields.io/badge/platform-Windows%2010%2F11-00e676?style=flat-square)
 ![Python](https://img.shields.io/badge/python-3.11%2B-00e676?style=flat-square)
 ![License](https://img.shields.io/badge/license-MIT-00e676?style=flat-square)
@@ -36,12 +36,12 @@ It works with Galaxy devices from legacy TouchWiz (S5, S6, S7) all the way throu
 - **4 categorized tabs** — System Apps, Core Apps, User Apps, 3rd Party
 - **Risk badges** — Safe / Recommended / Caution / Core / Locked / Keep
 - **Disable or Uninstall** — both fully reversible via `--user 0`
-- **Per-row Re-enable** — restore any app instantly while device is connected
+- **Re-enable Selected** — restore disabled *or* uninstalled apps while the device is connected
 - **Core Apps confirmation** — ⛔ individual warning dialog before touching system-critical apps
 - **Auto silent backup** — JSON snapshot saved before every action
 - **Panic Restore** — one click re-enables everything from last backup
-- **Dry Run mode** — preview all changes with zero actual impact
-- **Live device detection** — polls every 3 seconds, shows model, Android version, One UI version, battery
+- **Smooth UI** — virtualised package list and pre-built pages: instant tab switching, no flicker, portrait window
+- **Live device detection** — polls every 4 seconds, shows model, Android version, One UI version, battery
 - **USB Debugging guide** — built-in step-by-step walkthrough
 - **SoundAlive fix** — post-debloat audio engine flush for diagmonagent removal
 - **4 themes** — Green (default), Blue, Purple, White
@@ -107,8 +107,9 @@ pyinstaller ^
   --onefile ^
   --windowed ^
   --name "DebloatKit" ^
-  --uac-admin ^
+  --icon "assets\icon.ico" ^
   --add-data "data;data" ^
+  --add-data "assets;assets" ^
   --hidden-import customtkinter ^
   --collect-all customtkinter ^
   DebloatKit.py
@@ -119,8 +120,8 @@ The `.exe` is output to `dist\DebloatKit.exe`.
 ### Build Windows Installer (.exe setup)
 1. Download [Inno Setup 6](https://jrsoftware.org/isinfo.php) and install it
 2. Run `build.bat` first (builds the `.exe`)
-3. Run `installer\build_installer.bat`  — or open `installer\DebloatKit_Installer.iss` in Inno Setup and press **F9**
-4. Installer is output to `installer\Output\DebloatKit_Setup_v1.0.exe`
+3. Run `build_installer.bat`  — or open `DebloatKit_Installer.iss` in Inno Setup and press **F9**
+4. Installer is output to `installer_output\`
 
 The installer:
 - Checks for ADB and warns the user if missing
@@ -175,8 +176,7 @@ adb shell cmd package install-existing --user 0 <package>
 | `--user 0` only | Never touches system partition |
 | Auto backup | JSON snapshot saved before every debloat action |
 | Panic Restore | One click re-enables all from last backup |
-| Per-row re-enable | Restore any individual app instantly |
-| Dry Run | Preview mode — zero actual changes |
+| Re-enable Selected | Restores disabled apps (`pm enable`) and uninstalled apps (`pm install-existing`) |
 | Core confirmation | ⛔ dialog required for system-critical packages |
 | Factory reset fallback | Full reinstall of all packages if needed |
 
@@ -213,7 +213,7 @@ The `data/packages.json` contains 110+ packages across:
 | 3rd Party | 19 | Facebook suite, Microsoft Office, LinkedIn, Netflix |
 | Keep (non-removable) | 5 | Google Play Services, Files UI, Phone dialer |
 
-Risk ratings sourced from XDA Developers community research and the Universal Android Debloater project.
+Risk ratings are based on XDA Community research and Google/AOSP documentation.
 
 ---
 

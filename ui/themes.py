@@ -1,5 +1,5 @@
 """
-DebloatKit v1.0 — Themes
+DebloatKit v2.0 — Themes
 Color tokens matching PurgeKit's design language.
 Author: Yashwanth Ram Somireddy | TeamExyKings | MIT License
 """

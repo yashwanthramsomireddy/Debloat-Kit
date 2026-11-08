@@ -1,16 +1,38 @@
 """
-DebloatKit v1.0 — Debloater Engine
+DebloatKit v2.0 — Debloater Engine
 Handles disable/enable/uninstall/restore operations and backup management.
 Author: Yashwanth Ram Somireddy | TeamExyKings | MIT License
 """
 
 import json
 import os
+import sys
 import threading
 from datetime import datetime
 from typing import Optional, Callable
 from core.adb_manager import ADBManager
 from core.app_scanner import AppEntry
+
+
+def default_backup_dir() -> str:
+    """Backups must live somewhere permanent.
+    Source run  -> <project>/backups
+    Built exe   -> <folder of DebloatKit.exe>/backups (PyInstaller's temp dir is wiped on
+                   exit, so __file__ must NOT be used); falls back to %LOCALAPPDATA% if
+                   that folder is read-only."""
+    if getattr(sys, "frozen", False):
+        base = os.path.dirname(sys.executable)
+        d = os.path.join(base, "backups")
+        try:
+            os.makedirs(d, exist_ok=True)
+            probe = os.path.join(d, ".w")
+            with open(probe, "w") as f:
+                f.write("1")
+            os.remove(probe)
+            return d
+        except OSError:
+            return os.path.join(os.environ.get("LOCALAPPDATA", base), "DebloatKit", "backups")
+    return os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "backups")
 
 
 class DebloatResult:
@@ -27,24 +49,13 @@ class Debloater:
     def __init__(self, adb: ADBManager, backup_dir: str = None, log_callback: Optional[Callable] = None):
         self.adb = adb
         self.log_callback = log_callback
-        self.backup_dir = backup_dir or os.path.join(
-            os.path.dirname(os.path.dirname(__file__)), "backups"
-        )
+        self.backup_dir = backup_dir or default_backup_dir()
         os.makedirs(self.backup_dir, exist_ok=True)
-        self._dry_run = False
         self._lock = threading.Lock()
 
     def log(self, msg: str, level: str = "info"):
         if self.log_callback:
             self.log_callback(msg, level)
-
-    def set_dry_run(self, enabled: bool):
-        self._dry_run = enabled
-        mode = "ON" if enabled else "OFF"
-        self.log(f"Dry Run mode: {mode}", "warning" if enabled else "info")
-
-    def is_dry_run(self) -> bool:
-        return self._dry_run
 
     # ─── Backup / Restore ────────────────────────────────────────────────────
 
@@ -124,7 +135,7 @@ class Debloater:
             self.log("No device connected. Cannot proceed.", "error")
             return results
 
-        self.log(f"{'[DRY RUN] ' if self._dry_run else ''}Starting {action} on {total} package(s)...", "info")
+        self.log(f"Starting {action} on {total} package(s)...", "info")
 
         for i, entry in enumerate(entries):
             if progress_callback:
@@ -135,15 +146,6 @@ class Debloater:
             r.name = entry.name
             r.action = action
             r.path_used = entry.path
-
-            if self._dry_run:
-                r.success = True
-                r.message = f"[DRY RUN] Would {action}: {entry.pkg}"
-                self.log(r.message, "warning")
-                results.append(r)
-                if result_callback:
-                    result_callback(entry, r)
-                continue
 
             with self._lock:
                 if action == "disable":
@@ -190,7 +192,7 @@ class Debloater:
         success_count = sum(1 for r in results if r.success)
         fail_count = total - success_count
         self.log(
-            f"{'[DRY RUN] ' if self._dry_run else ''}{action.title()} complete — "
+            f"{action.title()} complete — "
             f"✓ {success_count} succeeded · ✗ {fail_count} failed",
             "success" if fail_count == 0 else "warning"
         )
@@ -201,8 +203,7 @@ class Debloater:
                          progress_callback: Optional[Callable] = None,
                          result_callback: Optional[Callable] = None) -> list[DebloatResult]:
         """Disable selected packages. Auto-backups first."""
-        if not self._dry_run:
-            self.auto_backup(all_entries)
+        self.auto_backup(all_entries)
         return self._execute(entries, "disable", progress_callback, result_callback)
 
     def uninstall_packages(self, entries: list[AppEntry],
@@ -210,8 +211,7 @@ class Debloater:
                            progress_callback: Optional[Callable] = None,
                            result_callback: Optional[Callable] = None) -> list[DebloatResult]:
         """Uninstall selected packages. Auto-backups first."""
-        if not self._dry_run:
-            self.auto_backup(all_entries)
+        self.auto_backup(all_entries)
         return self._execute(entries, "uninstall", progress_callback, result_callback)
 
     def enable_packages(self, entries: list[AppEntry],
@@ -251,6 +251,5 @@ class Debloater:
             "success": sum(1 for r in results if r.success),
             "failed": sum(1 for r in results if not r.success),
             "path_a": sum(1 for r in results if r.path_used == "A"),
-            "path_b": sum(1 for r in results if r.path_used == "B"),
-            "dry_run": self._dry_run
+            "path_b": sum(1 for r in results if r.path_used == "B")
         }

@@ -43,7 +43,7 @@ if errorlevel 1 (
 echo.
 echo  =============================================
 echo    INSTALLER BUILT SUCCESSFULLY!
-echo    Output: installer_output\DebloatKit_Setup_v1.0.exe
+echo    Output: installer_output\DebloatKit_Setup_v2.0.exe
 echo  =============================================
 echo.
 pause

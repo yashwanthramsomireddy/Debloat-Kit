@@ -4,7 +4,7 @@ color 0A
 
 echo.
 echo  =============================================
-echo    DebloatKit v1.0 -- Build Script
+echo    DebloatKit v2.0 -- Build Script
 echo    TeamExyKings - Yashwanth Ram Somireddy
 echo  =============================================
 echo.
@@ -33,7 +33,7 @@ if exist "build" rmdir /s /q "build"
 if exist "DebloatKit.spec" del /f /q "DebloatKit.spec"
 echo       Done.
 
-REM Build -- assets/icon.ico is embedded, data/ is bundled
+REM Build -- assets/icon.ico is embedded, data/ and assets/ are bundled
 echo  [3/3] Building DebloatKit.exe...
 echo.
 
@@ -43,6 +43,7 @@ pyinstaller ^
     --name "DebloatKit" ^
     --icon "assets\icon.ico" ^
     --add-data "data;data" ^
+    --add-data "assets;assets" ^
     --hidden-import customtkinter ^
     --hidden-import PIL ^
     --hidden-import PIL._tkinter_finder ^

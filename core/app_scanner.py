@@ -1,5 +1,5 @@
 """
-DebloatKit v1.0 — App Scanner
+DebloatKit v2.0 — App Scanner
 Scans installed packages and cross-references with the master package database.
 Author: Yashwanth Ram Somireddy | TeamExyKings | MIT License
 """

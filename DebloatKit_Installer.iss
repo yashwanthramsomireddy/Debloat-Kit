@@ -1,5 +1,5 @@
 ; ============================================================
-;  DebloatKit v1.0 -- Inno Setup Installer Script
+;  DebloatKit v2.0 -- Inno Setup Installer Script
 ;  TeamExyKings | Yashwanth Ram Somireddy | Chennai, India
 ;  MIT License
 ;
@@ -10,11 +10,11 @@
 ;  To build:
 ;    Double-click build_installer.bat
 ;    OR open this .iss in Inno Setup Compiler and press F9
-;    Output: installer_output\DebloatKit_Setup_v1.0.exe
+;    Output: installer_output\DebloatKit_Setup_v2.0.exe
 ; ============================================================
 
 #define MyAppName      "DebloatKit"
-#define MyAppVersion   "1.0"
+#define MyAppVersion   "2.0"
 #define MyAppPublisher "TeamExyKings"
 #define MyAppAuthor    "Yashwanth Ram Somireddy"
 #define MyAppURL       "https://github.com/yashwanthramsomireddy/DebloatKit"
